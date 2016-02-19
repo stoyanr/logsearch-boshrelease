@@ -30,8 +30,12 @@ case $1 in
 
     echo "filter {" >> ${JOB_DIR}/config/logstash.conf
 
+    <% if not p('logstash_parser.excluded_filters').include? 'filters_pre' %>
     cat ${JOB_DIR}/config/filters_pre.conf >> ${JOB_DIR}/config/logstash.conf
+    <% end %>
+    <% if not p('logstash_parser.excluded_filters').include? 'logstash-filters-default' %>
     cat /var/vcap/packages/logsearch-config/logstash-filters-default.conf >> ${JOB_DIR}/config/logstash.conf
+    <% end %>
 
     <% if p('logstash_parser.filters').is_a? Array %>
       # logstash_parser.filters is a list of filter rules
@@ -43,9 +47,15 @@ case $1 in
       cat ${JOB_DIR}/config/filters_override.conf >> ${JOB_DIR}/config/logstash.conf
     <% end %>
 
+    <% if not p('logstash_parser.excluded_filters').include? 'filters_pre' %>
     cat ${JOB_DIR}/config/filters_post.conf >> ${JOB_DIR}/config/logstash.conf
+    <% end %>
+    <% if not p('logstash_parser.excluded_filters').include? 'if_it_looks_like_json' %>
     cat /var/vcap/packages/logsearch-config/if_it_looks_like_json.conf >> ${JOB_DIR}/config/logstash.conf
+    <% end %>
+    <% if not p('logstash_parser.excluded_filters').include? 'timecop' %>
     cat /var/vcap/packages/logsearch-config/timecop.conf >> ${JOB_DIR}/config/logstash.conf
+    <% end %>
 
     echo "} #close filters" >> ${JOB_DIR}/config/logstash.conf
 
