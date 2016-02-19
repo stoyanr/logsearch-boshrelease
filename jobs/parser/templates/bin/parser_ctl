@@ -47,7 +47,7 @@ case $1 in
       cat ${JOB_DIR}/config/filters_override.conf >> ${JOB_DIR}/config/logstash.conf
     <% end %>
 
-    <% if not p('logstash_parser.excluded_filters').include? 'filters_pre' %>
+    <% if not p('logstash_parser.excluded_filters').include? 'filters_post' %>
     cat ${JOB_DIR}/config/filters_post.conf >> ${JOB_DIR}/config/logstash.conf
     <% end %>
     <% if not p('logstash_parser.excluded_filters').include? 'if_it_looks_like_json' %>
