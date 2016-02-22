@@ -13,7 +13,6 @@ templates:
   config/input_and_output.conf.erb: config/input_and_output.conf
   config/filters_pre.conf.erb: config/filters_pre.conf
   config/filters_post.conf.erb: config/filters_post.conf
-  config/filters_override.conf.erb: config/filters_override.conf
   logsearch/logs.yml: logsearch/logs.yml
 properties:
   logstash.metadata_level:
@@ -27,8 +26,22 @@ properties:
     description: "Maximum log message length.  Anything larger is truncated (TODO: move this to ingestor?)"
     default: 1048576
   logstash_parser.filters:
-    description: "The configuration to embed into the logstash filters section. Can either be a set of parsing rules as a string or a list of hashes in the form of [{name: path_to_parsing_rules.conf}]"
-    default: ''
+    description: |
+      The configuration of the logstash filters. It is a list of filter rules that can be of the following different types:
+      * config: a filter file delivered with the job configuration as an erb template
+      * path: an absolute path, usually a filter file delivered with a package
+      * text: a block of text
+    default:
+      - filter: filters_pre.conf
+        type: config
+      - filter: /var/vcap/packages/logsearch-config/logstash-filters-default.conf
+        type: path
+      - filter: filters_post.conf
+        type: config
+      - filter: /var/vcap/packages/logsearch-config/if_it_looks_like_json.conf
+        type: path
+      - filter: /var/vcap/packages/logsearch-config/timecop.conf
+        type: path
   logstash_parser.inputs:
     description: |
       A list of input plugins, with a hash of options for each of them. Please refer to example below.
@@ -62,10 +75,6 @@ properties:
   logstash_parser.timecop.reject_less_than_hours:
     description: "Logs with timestamps less than this many hours in the past won't be parsed and will get tagged with fail/timecop"
     default: 24
-  logstash_parser.excluded_filters:
-    description: "Default filters that should not be added to the final logstash.conf"
-    example: [logstash-filters-default, if_it_looks_like_json, timecop]
-    default: []
 
   logstash.output.elasticsearch.data_hosts:
     description: The list of elasticsearch data node IPs
