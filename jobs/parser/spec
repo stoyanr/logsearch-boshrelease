@@ -28,16 +28,16 @@ properties:
   logstash_parser.filters:
     description: |
       The configuration of the logstash filters. It is a list of filter rules that can be of the following different types:
-      * config: a filter file delivered with the job configuration as an erb template
+      * builtin: a filter file delivered with the job configuration as an erb template
       * path: an absolute path, usually a filter file delivered with a package
       * text: a block of text
     default:
       - filter: filters_pre.conf
-        type: config
+        type: builtin
       - filter: /var/vcap/packages/logsearch-config/logstash-filters-default.conf
         type: path
       - filter: filters_post.conf
-        type: config
+        type: builtin
       - filter: /var/vcap/packages/logsearch-config/if_it_looks_like_json.conf
         type: path
       - filter: /var/vcap/packages/logsearch-config/timecop.conf

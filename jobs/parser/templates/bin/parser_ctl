@@ -32,7 +32,7 @@ case $1 in
 
     # logstash_parser.filters is a list of filter rules
     <% p('logstash_parser.filters').each do |filter| %>
-      <% if filter['type'] == 'config' %>
+      <% if filter['type'] == 'builtin' %>
         cat "${JOB_DIR}/config/<%= filter['filter'] %>" >> ${JOB_DIR}/config/logstash.conf
       <% elsif filter['type'] == 'path' %>
         cat "<%= filter['filter'] %>" >> ${JOB_DIR}/config/logstash.conf

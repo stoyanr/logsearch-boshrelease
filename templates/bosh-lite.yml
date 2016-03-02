@@ -141,7 +141,18 @@ jobs:
     logstash_parser:
       use_local_elasticsearch: false
       filters:
-      - /var/vcap/packages/logsearch-config/logstash-filters-metric.conf
+      - filter: filters_pre.conf
+        type: builtin
+      - filter: /var/vcap/packages/logsearch-config/logstash-filters-default.conf
+        type: path
+      - filter: /var/vcap/packages/logsearch-config/logstash-filters-metric.conf
+        type: path
+      - filter: filters_post.conf
+        type: builtin
+      - filter: /var/vcap/packages/logsearch-config/if_it_looks_like_json.conf
+        type: path
+      - filter: /var/vcap/packages/logsearch-config/timecop.conf
+        type: path
     nats_to_syslog:
       nats:
         subject: ">"
@@ -246,11 +257,23 @@ properties:
     - index_template: /var/vcap/packages/logsearch-config/default-mappings.json
   logstash_parser:
     debug: true
-    filters: |
-             <% filtersconf = File.join(File.dirname(File.expand_path(__FILE__)), 'examples/filters.conf') %>
-             <%= File.read(filtersconf).gsub(/^/, '             ').strip if File.exists? filtersconf %>
-             # src/sample-logs/repo-commits/logstash-filters.conf
-             <%= File.read("#{File.dirname(File.expand_path(__FILE__))}/src/sample-logs/repo-commits/logstash-filters.conf").gsub(/^/, '             ').strip %>
+    filters:
+    - filter: filters_pre.conf
+      type: builtin
+    - filter: /var/vcap/packages/logsearch-config/logstash-filters-default.conf
+      type: path
+    - filter: |
+        <% filtersconf = File.join(File.dirname(File.expand_path(__FILE__)), 'examples/filters.conf') %>
+        <%= File.read(filtersconf).gsub(/^/, '             ').strip if File.exists? filtersconf %>
+        # src/sample-logs/repo-commits/logstash-filters.conf
+        <%= File.read("#{File.dirname(File.expand_path(__FILE__))}/src/sample-logs/repo-commits/logstash-filters.conf").gsub(/^/, '             ').strip %>
+      type: text
+    - filter: filters_post.conf
+      type: builtin
+    - filter: /var/vcap/packages/logsearch-config/if_it_looks_like_json.conf
+      type: path
+    - filter: /var/vcap/packages/logsearch-config/timecop.conf
+      type: path
   logstash_ingestor:
     debug: true
     relp:
